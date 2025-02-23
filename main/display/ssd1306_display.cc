@@ -9,7 +9,7 @@
 
 #define TAG "Ssd1306Display"
 
-LV_FONT_DECLARE(font_awesome_30_1);
+LV_FONT_DECLARE(font_awesome_14_1);
 
 Ssd1306Display::Ssd1306Display(void* i2c_master_handle, int width, int height, bool mirror_x, bool mirror_y,
                                const lv_font_t* text_font, const lv_font_t* icon_font)
@@ -132,6 +132,14 @@ void Ssd1306Display::Unlock() {
     lvgl_port_unlock();
 }
 
+void Ssd1306Display::SetChatMessage(const std::string &role, const std::string &content) {
+    DisplayLockGuard lock(this);
+    if (chat_message_label_ == nullptr) {
+        return;
+    }
+    lv_label_set_text(chat_message_label_, content.c_str());
+}
+
 void Ssd1306Display::SetupUI_128x64() {
     DisplayLockGuard lock(this);
 
@@ -155,14 +163,33 @@ void Ssd1306Display::SetupUI_128x64() {
     /* Content */
     content_ = lv_obj_create(container_);
     lv_obj_set_scrollbar_mode(content_, LV_SCROLLBAR_MODE_OFF);
-    lv_obj_set_style_radius(status_bar_, 0, 0);
-    lv_obj_set_width(content_, LV_HOR_RES);
-    lv_obj_set_flex_grow(content_, 1);
+    
+    lv_obj_set_style_radius(content_, 0, 0);
+    lv_obj_set_size(content_, LV_HOR_RES, LV_VER_RES - 18);
+    lv_obj_set_flex_flow(content_, LV_FLEX_FLOW_ROW);
+    lv_obj_set_style_pad_all(content_, 0, 0);
+    lv_obj_set_style_border_width(content_, 0, 0);
+    lv_obj_set_style_pad_column(content_, 0, 1);
+    // lv_obj_set_style_flex_cross_place(content_, LV_FLEX_ALIGN_CENTER, 0);
+
+    // auto emotion_container = lv_obj_create(content_);
+    // lv_obj_set_height(emotion_container, LV_VER_RES - 18);
+    // lv_obj_set_flex_flow(emotion_container, LV_FLEX_FLOW_COLUMN);
+    // lv_obj_set_style_flex_main_place(emotion_container, LV_FLEX_ALIGN_CENTER, 0);
+    // lv_obj_set_style_flex_cross_place(emotion_container, LV_FLEX_ALIGN_START, 0);
+    // lv_obj_set_style_pad_all(emotion_container, 0, 0);
+    // lv_obj_set_style_border_width(emotion_container, 0, 0);
 
     emotion_label_ = lv_label_create(content_);
-    lv_obj_set_style_text_font(emotion_label_, &font_awesome_30_1, 0);
+    lv_obj_set_style_text_font(emotion_label_, &font_awesome_14_1, 0);
     lv_label_set_text(emotion_label_, FONT_AWESOME_AI_CHIP);
-    lv_obj_center(emotion_label_);
+
+    chat_message_label_ = lv_label_create(content_);
+    lv_obj_set_flex_grow(chat_message_label_, 1);
+    lv_label_set_text(chat_message_label_, "");
+    // lv_obj_set_width(chat_message_label_, LV_HOR_RES);
+    lv_label_set_long_mode(chat_message_label_, LV_LABEL_LONG_WRAP); // 设置为自动换行
+    lv_obj_set_style_text_align(chat_message_label_, LV_TEXT_ALIGN_LEFT, 0);
 
     /* Status bar */
     lv_obj_set_flex_flow(status_bar_, LV_FLEX_FLOW_ROW);
@@ -225,7 +252,7 @@ void Ssd1306Display::SetupUI_128x32() {
     lv_obj_set_style_radius(content_, 0, 0);
 
     emotion_label_ = lv_label_create(content_);
-    lv_obj_set_style_text_font(emotion_label_, &font_awesome_30_1, 0);
+    lv_obj_set_style_text_font(emotion_label_, &font_awesome_14_1, 0);
     lv_label_set_text(emotion_label_, FONT_AWESOME_AI_CHIP);
     lv_obj_center(emotion_label_);
 

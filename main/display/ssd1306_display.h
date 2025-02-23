@@ -15,6 +15,7 @@ private:
     lv_obj_t* content_ = nullptr;
     lv_obj_t* container_ = nullptr;
     lv_obj_t* side_bar_ = nullptr;
+    lv_obj_t* chat_message_label_ = nullptr;
 
     const lv_font_t* text_font_ = nullptr;
     const lv_font_t* icon_font_ = nullptr;
@@ -29,6 +30,7 @@ public:
     Ssd1306Display(void* i2c_master_handle, int width, int height, bool mirror_x, bool mirror_y,
                    const lv_font_t* text_font, const lv_font_t* icon_font);
     ~Ssd1306Display();
+    void SetChatMessage(const std::string &role, const std::string &content) override;
 };
 
 #endif // SSD1306_DISPLAY_H
